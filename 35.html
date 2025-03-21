@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>奋斗的35班</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 20px;
+            background: url('file:///C:/Users/Administrator/Desktop/01/nz.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Microsoft YaHei', sans-serif;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 0;
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
+        }
+
+        .title {
+            font-size: 48px;
+            color: #ff4e4e;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        #randomButton {
+            padding: 40px 80px;
+            font-size: 42px;
+            background: linear-gradient(45deg, #ff4e4e, #ffd700);
+            color: #fff;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(255, 78, 78, 0.4);
+            transition: all 0.3s;
+            margin: 30px 0;
+            position: relative;
+            border: 3px solid #ffd700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        #randomButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 20px rgba(255, 78, 78, 0.6);
+        }
+
+        #randomButton.stopped {
+            background: linear-gradient(45deg, #4a90e2, #2457a0);
+            box-shadow: 0 8px 15px rgba(36, 87, 160, 0.4);
+        }
+
+        #result {
+            font-size: 64px;
+            color: #ffd700;
+            margin: 40px 0;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            min-height: 80px;
+        }
+
+        #remaining {
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        #selectedList {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #ffd700;
+            max-height: 70vh;
+            overflow-y: auto;
+            z-index: 1;
+        }
+
+        #selectedList h3 {
+            color: #ff4e4e;
+            margin: 0 0 15px 0;
+            text-align: center;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        #selectedNames {
+            color: #fff;
+            font-size: 18px;
+            display: grid;
+            gap: 8px;
+        }
+
+        #selectedNames div {
+            padding: 8px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 5px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        /* 新增艺术字样式 */
+        .art-text {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: '楷体', cursive;
+            font-size: 56px;
+            color: #ffd700;
+            text-shadow: 3px 3px 6px rgba(255, 78, 78, 0.8);
+            animation: glow 2s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px #ff4e4e; }
+            50% { text-shadow: 0 0 30px #ffd700, 0 0 40px #ff4e4e; }
+        }
+    </style>
+</head>
+<body>
+    <audio id="file:///C:/Users/Administrator/Desktop/01/bgm.mp3" loop>
+        <source src="file:///C:/Users/Administrator/Desktop/01/bgm.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="main-content">
+        <h1 class="title">⚡ 奋斗的35班 ⚡</h1>
+        <button id="randomButton">开始随机</button>
+        <div id="result"></div>
+        <div id="remaining"></div>
+    </div>
+
+    <div id="selectedList">
+        <h3>⚔️ 已点将名单 ⚔️</h3>
+        <div id="selectedNames"></div>
+    </div>
+
+    <!-- 新增艺术字 -->
+    <div class="art-text">我命由我不由天</div>
+
+    <script>
+        const bgm = document.getElementById('file:///C:/Users/Administrator/Desktop/01/bgm.mp3');
+        const startSound = new Audio('file:///C:/Users/Administrator/Desktop/01/yx1.mp3');
+        const stopSound = new Audio('file:///C:/Users/Administrator/Desktop/01/yx2.mp3');
+
+        // 更新后的姓名数据
+        const names = [
+            "许诗雨", "陈芷菡", "肖沛东", "刘若冰", "翟冠婷", "宋雨珈", "李思彤", "韩泽峄",
+            "李文慧", "陈怡静", "刘芷卉", "王俊晰", "张廷政", "潘嘉林", "潘雨婷", "张胜博",
+            "李航宇", "何奕萱", "袁硕", "王子丹", "杨宜全", "刘幼琳", "翟冠童", "胡欣岩",
+            "吕习辛", "徐铭悦", "陆悦霖", "康媛媛", "周星雨", "康梓洋", "朱姝璇", "赵宇泽",
+            "王帆", "姚默怡", "吕鑫蕊", "张祖宁", "李定坤", "刘子硕", "姚宇晨", "王婧霏",
+            "杨懿鑫", "魏若昕", "杨子桓", "牛甜雨", "霍怡霏", "臧书琪", "朱琦", "张书贤",
+            "高晨皓", "陈奕君", "殷子舒", "李俊燃", "李旭尧", "黄子珂", "冉晨旭", "岳子宸",
+            "赵可馨", "马士一", "姚博文", "文慕童", "李光焜", "李道广", "马欣欣", "贺世博",
+            "胡曾泽", "彭靖哲", "王又冉", "杨峥悦", "黄雯涵", "井易翔", "宋羿岑", "陈禹", "杨明昊"
+        ];
+
+        let remainingNames = [...names];
+        let isRunning = false;
+        let intervalId = null;
+        const elements = {
+            button: document.getElementById('randomButton'),
+            result: document.getElementById('result'),
+            remaining: document.getElementById('remaining'),
+            selectedNames: document.getElementById('selectedNames')
+        };
+
+        function updateDisplay() {
+            elements.remaining.textContent = `剩余仙童: ${remainingNames.length}/${names.length}`;
+        }
+
+        function updateSelectedList(name) {
+            const entry = document.createElement('div');
+            entry.textContent = `${elements.selectedNames.children.length + 1}. ${name}`;
+            entry.style.animation = 'fadeIn 0.5s ease-in';
+            elements.selectedNames.prepend(entry);
+            elements.selectedNames.scrollTop = 0;
+        }
+
+        elements.button.addEventListener('click', () => {
+            if (!isRunning) {
+                if (remainingNames.length === 0) {
+                    elements.result.textContent = "全员已归位！";
+                    return;
+                }
+                startSound.play();
+                bgm.play().catch(() => {});
+                isRunning = true;
+                elements.button.classList.add('stopped');
+                elements.button.textContent = '停止抽选';
+                
+                intervalId = setInterval(() => {
+                    const randomIndex = Math.floor(Math.random() * remainingNames.length);
+                    elements.result.textContent = remainingNames[randomIndex];
+                }, 50);
+            } else {
+                stopSound.play();
+                clearInterval(intervalId);
+                isRunning = false;
+                elements.button.classList.remove('stopped');
+                elements.button.textContent = '开始随机';
+                
+                const drawnName = elements.result.textContent;
+                updateSelectedList(drawnName);
+                remainingNames = remainingNames.filter(name => name !== drawnName);
+                updateDisplay();
+            }
+        });
+
+        updateDisplay();
+        document.body.addEventListener('click', () => {
+            bgm.play().catch(() => {});
+        }, { once: true });
+    </script>
+</body>
+</html>
