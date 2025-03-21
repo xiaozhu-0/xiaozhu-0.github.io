@@ -13,7 +13,7 @@
         body {
             min-height: 100vh;
             padding: 20px;
-            background: url('file:///C:/Users/Administrator/Desktop/01/nz.jpg') no-repeat center center fixed;
+            background: url('nz.jpg') no-repeat center center fixed;
             background-size: cover;
             font-family: 'Microsoft YaHei', sans-serif;
             display: grid;
@@ -150,8 +150,8 @@
     </style>
 </head>
 <body>
-    <audio id="file:///C:/Users/Administrator/Desktop/01/bgm.mp3" loop>
-        <source src="file:///C:/Users/Administrator/Desktop/01/bgm.mp3" type="audio/mpeg">
+    <audio id="bgm.mp3" loop>
+        <source src="bgm.mp3" type="audio/mpeg">
     </audio>
 
     <div class="main-content">
@@ -170,9 +170,9 @@
     <div class="art-text">我命由我不由天</div>
 
     <script>
-        const bgm = document.getElementById('file:///C:/Users/Administrator/Desktop/01/bgm.mp3');
-        const startSound = new Audio('file:///C:/Users/Administrator/Desktop/01/yx1.mp3');
-        const stopSound = new Audio('file:///C:/Users/Administrator/Desktop/01/yx2.mp3');
+        const bgm = document.getElementById('bgm.mp3');
+        const startSound = new Audio('yx1.mp3');
+        const stopSound = new Audio('yx2.mp3');
 
         // 更新后的姓名数据
         const names = [
