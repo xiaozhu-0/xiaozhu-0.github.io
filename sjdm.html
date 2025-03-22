@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奋斗的35班 - 随机点名</title>
+    <style>
+        /* 全局样式 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 20px;
+            background: url('nz.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Microsoft YaHei', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 0;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        /* 文件导入区域 */
+        #fileInput {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed #ffd700;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        /* 标题样式 */
+        .title {
+            font-size: 48px;
+            color: #ff4e4e;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        /* 随机按钮样式 */
+        #randomButton {
+            padding: 20px 40px;
+            font-size: 24px;
+            background: linear-gradient(45deg, #ff4e4e, #ffd700);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(255, 78, 78, 0.4);
+            transition: all 0.3s;
+            margin: 20px 0;
+            position: relative;
+            border: 3px solid #ffd700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        #randomButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 20px rgba(255, 78, 78, 0.6);
+        }
+
+        #randomButton.stopped {
+            background: linear-gradient(45deg, #4a90e2, #2457a0);
+            box-shadow: 0 8px 15px rgba(36, 87, 160, 0.4);
+        }
+
+        /* 结果显示区域 */
+        #result {
+            font-size: 64px;
+            color: #ffd700;
+            margin: 40px 0;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            min-height: 80px;
+        }
+
+        /* 剩余仙童显示 */
+        #remaining {
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* 已点将名单区域 */
+        #selectedList {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #ffd700;
+            max-height: 70vh;
+            overflow-y: auto;
+            z-index: 1;
+            width: 300px;
+        }
+
+        #selectedList h3 {
+            color: #ff4e4e;
+            margin: 0 0 15px 0;
+            text-align: center;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        #selectedNames {
+            color: #fff;
+            font-size: 18px;
+            display: grid;
+            gap: 8px;
+        }
+
+        #selectedNames div {
+            padding: 8px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 5px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        /* 艺术字样式 */
+        .art-text {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: '楷体', cursive;
+            font-size: 56px;
+            color: #ffd700;
+            text-shadow: 3px 3px 6px rgba(255, 78, 78, 0.8);
+            animation: glow 2s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        /* 音乐控制按钮 */
+        #musicControl {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #ffd700;
+            border-radius: 50px;
+            color: #fff;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px #ff4e4e; }
+            50% { text-shadow: 0 0 30px #ffd700, 0 0 40px #ff4e4e; }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 36px;
+            }
+            #randomButton {
+                padding: 15px 30px;
+                font-size: 20px;
+            }
+            #result {
+                font-size: 48px;
+            }
+            .art-text {
+                font-size: 36px;
+            }
+            #selectedList {
+                width: 90%;
+                right: 5%;
+                top: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <audio id="bgm" loop>
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 音乐控制按钮 -->
+    <button id="musicControl">播放音乐</button>
+
+    <div class="main-content">
+        <!-- 文件导入区域 -->
+        <input type="file" id="fileInput" accept=".csv, .xlsx" />
+        <h1 class="title">⚡ 哪吒点名了⚡</h1>
+        <button id="randomButton">开始随机</button>
+        <div id="result"></div>
+        <div id="remaining"></div>
+    </div>
+
+    <div id="selectedList">
+        <h3>⚔️ 已点将名单 ⚔️</h3>
+        <div id="selectedNames"></div>
+    </div>
+
+    <div class="art-text">我命由我不由天</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    <script>
+        const bgm = document.getElementById('bgm');
+        const musicControl = document.getElementById('musicControl');
+        const fileInput = document.getElementById('fileInput');
+
+        let names = [];
+        let remainingNames = [];
+        let isRunning = false;
+        let intervalId = null;
+        const domElements = {
+            button: document.getElementById('randomButton'),
+            result: document.getElementById('result'),
+            remaining: document.getElementById('remaining'),
+            selectedNames: document.getElementById('selectedNames')
+        };
+
+        // 更新显示剩余仙童
+        function updateDisplay() {
+            domElements.remaining.textContent = `剩余仙童: ${remainingNames.length}/${names.length}`;
+            if (remainingNames.length === 0) {
+                domElements.button.disabled = true;
+                domElements.button.textContent = '全员已归位';
+                domElements.button.style.opacity = '0.6';
+            }
+        }
+
+        // 更新已点将名单
+        function updateSelectedList(name) {
+            const entry = document.createElement('div');
+            entry.textContent = `${domElements.selectedNames.children.length + 1}. ${name}`;
+            entry.style.animation = 'fadeIn 0.5s ease-in';
+            domElements.selectedNames.prepend(entry);
+            domElements.selectedNames.scrollTop = 0;
+        }
+
+        // 解析表格文件
+        function parseTableFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                names = json.flat().filter(name => name && typeof name === 'string').map(name => name.trim());
+                remainingNames = [...names];
+                updateDisplay();
+                domElements.result.textContent = '';
+                domElements.selectedNames.innerHTML = '';
+                domElements.button.disabled = false;
+                domElements.button.textContent = '开始随机';
+                domElements.button.style.opacity = '1';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 文件导入功能
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.name.endsWith('.csv') || file.name.endsWith('.xlsx')) {
+                    parseTableFile(file);
+                } else {
+                    alert('请上传 .csv 或 .xlsx 文件！');
+                }
+            }
+        });
+
+        // 随机点名功能
+        domElements.button.addEventListener('click', () => {
+            if (!isRunning) {
+                if (remainingNames.length === 0) {
+                    domElements.result.textContent = "全员已归位！";
+                    return;
+                }
+                isRunning = true;
+                domElements.button.classList.add('stopped');
+                domElements.button.textContent = '停止抽选';
+                
+                intervalId = setInterval(() => {
+                    const randomIndex = Math.floor(Math.random() * remainingNames.length);
+                    domElements.result.textContent = remainingNames[randomIndex];
+                }, 50);
+            } else {
+                clearInterval(intervalId);
+                isRunning = false;
+                domElements.button.classList.remove('stopped');
+                domElements.button.textContent = '开始随机';
+                
+                const drawnName = domElements.result.textContent;
+                updateSelectedList(drawnName);
+                remainingNames = remainingNames.filter(name => name !== drawnName);
+                updateDisplay();
+            }
+        });
+
+        // 音乐控制功能
+        musicControl.addEventListener('click', () => {
+            if (bgm.paused) {
+                bgm.play();
+                musicControl.textContent = '暂停音乐';
+            } else {
+                bgm.pause();
+                musicControl.textContent = '播放音乐';
+            }
+        });
+
+        // 初始化
+        updateDisplay();
+    </script>
+</body>
+</html>
