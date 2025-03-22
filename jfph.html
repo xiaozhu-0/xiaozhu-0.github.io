@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课堂点名与积分排行</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 容器样式 */
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        /* 标题样式 */
+        h1 {
+            color: #0052D9;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        /* 修改标题区域样式 */
+        .title-control {
+            margin-bottom: 20px;
+        }
+
+        .title-control input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            margin-right: 10px;
+        }
+
+        /* 按钮样式 */
+        button {
+            background-color: #0052D9;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background-color: #003f7f;
+        }
+
+        /* 滚动显示区域样式 */
+        .roll-container {
+            margin: 20px 0;
+        }
+
+        #rollDisplay {
+            font-size: 2em;
+            font-weight: bold;
+            color: #0052D9;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 滑块样式 */
+        .slider-control {
+            margin: 20px 0;
+        }
+
+        .slider-control label {
+            font-size: 1em;
+            margin-right: 10px;
+        }
+
+        .slider-control input[type="range"] {
+            width: 200px;
+        }
+
+        .slider-control span {
+            margin-left: 10px;
+            font-size: 1em;
+            color: #0052D9;
+        }
+
+        /* 积分排行样式 */
+        .ranking-container {
+            margin-top: 20px;
+        }
+
+        .ranking-container h2 {
+            color: #0052D9;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .ranking-container ol {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .ranking-container li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 1.2em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ranking-container li:nth-child(-n+3) {
+            font-weight: bold;
+            color: #0052D9;
+        }
+
+        /* 分数控制区域样式 */
+        .score-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-controls input[type="number"] {
+            width: 60px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        /* 学生选择列表样式 */
+        .student-list {
+            display: none; /* 默认隐藏 */
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .student-list label {
+            display: block;
+            margin: 5px 0;
+            font-size: 1em;
+        }
+
+        /* 文件上传样式 */
+        input[type="file"] {
+            margin-top: 20px;
+        }
+
+        /* 背景音乐控制样式 */
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 修改标题区域 -->
+        <div class="title-control">
+            <h1 id="title">课堂点名与积分排行</h1>
+            <input type="text" id="titleInput" placeholder="输入新标题">
+            <button onclick="changeTitle()">修改标题</button>
+        </div>
+
+        <!-- 滚动显示区域 -->
+        <div class="roll-container">
+            <div id="rollDisplay">点击“开始滚动”以显示名字</div>
+            <div class="slider-control">
+                <label for="speedControl">滚动速度:</label>
+                <input type="range" id="speedControl" min="1" max="10" value="5">
+                <span id="speedValue">5</span>
+            </div>
+            <div class="slider-control">
+                <label for="nameCount">每次显示名字数量:</label>
+                <input type="range" id="nameCount" min="1" max="5" value="1">
+                <span id="nameCountValue">1</span>
+            </div>
+            <button onclick="startRoll()">开始滚动</button>
+            <button onclick="stopRoll()">停止滚动</button>
+        </div>
+
+        <!-- 积分排行 -->
+        <div class="ranking-container">
+            <h2>课堂积分排行</h2>
+            <ol id="rankingList"></ol>
+        </div>
+
+        <!-- 导出积分按钮 -->
+        <button onclick="exportScores()">导出积分</button>
+
+        <!-- 文件上传 -->
+        <input type="file" id="studentListUpload" accept=".xlsx, .xls">
+
+        <!-- 背景音乐控制 -->
+        <div class="music-control">
+            <audio id="backgroundMusic" loop>
+                <source src="bgm.mp3" type="audio/mpeg">
+                        </audio>
+            <button onclick="toggleMusic()">播放/暂停音乐</button>
+        </div>
+    </div>
+
+    <!-- 分数控制区域 -->
+    <div class="score-controls">
+        <input type="number" id="scoreAmount" min="1" max="10" value="1">
+        <button oncontextmenu="showStudentList(event)" onclick="adjustScore(1)">增加分数</button>
+        <button oncontextmenu="showStudentList(event)" onclick="adjustScore(-1)">减少分数</button>
+        <div class="student-list" id="studentListContainer">
+            <!-- 学生选择列表 -->
+        </div>
+    </div>
+
+    <script>
+        // 学生数据
+        let students = [];
+        let rollingInterval;
+        let currentRollIndex = 0;
+
+        // 文件上传事件监听
+        document.getElementById('studentListUpload').addEventListener('change', function (event) {
+            let file = event.target.files[0];
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                let data = new Uint8Array(e.target.result);
+                let workbook = XLSX.read(data, { type: 'array' });
+                let firstSheetName = workbook.SheetNames[0];
+                let worksheet = workbook.Sheets[firstSheetName];
+                students = XLSX.utils.sheet_to_json(worksheet);
+                students.forEach(student => {
+                    student.score = student.score || 0; // 初始化分数
+                    student.selected = false; // 初始化选中状态
+                });
+                updateStudentList();
+                updateRanking();
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        // 更新学生选择列表
+        function updateStudentList() {
+            let studentListContainer = document.getElementById('studentListContainer');
+            studentListContainer.innerHTML = '';
+            // 将选中的学生排在前面
+            let sortedStudents = students.sort((a, b) => b.selected - a.selected);
+            sortedStudents.forEach((student, index) => {
+                let label = document.createElement('label');
+                label.innerHTML = `
+                    <input type="checkbox" ${student.selected ? 'checked' : ''} onchange="toggleStudentSelection(${index})">
+                    ${student.姓名}
+                `;
+                studentListContainer.appendChild(label);
+            });
+        }
+
+        // 显示学生列表
+        function showStudentList(event) {
+            event.preventDefault(); // 阻止默认右键菜单
+            let studentListContainer = document.getElementById('studentListContainer');
+            studentListContainer.style.display = 'block';
+        }
+
+        // 开始滚动
+        function startRoll() {
+            if (students.length === 0) {
+                alert("请先上传学生名单！");
+                return;
+            }
+            let speed = document.getElementById('speedControl').value;
+            let nameCount = document.getElementById('nameCount').value;
+            clearInterval(rollingInterval);
+            rollingInterval = setInterval(() => {
+                let display = '';
+                for (let i = 0; i < nameCount; i++) {
+                    let index = (currentRollIndex + i) % students.length;
+                    display += students[index].姓名 + ' '; // 假设 Excel 中姓名列的标题是“姓名”
+                }
+                document.getElementById('rollDisplay').textContent = display.trim();
+                currentRollIndex = (currentRollIndex + 1) % students.length;
+            }, 1000 / speed);
+        }
+
+        // 停止滚动
+        function stopRoll() {
+            clearInterval(rollingInterval);
+        }
+
+        // 修改标题
+        function changeTitle() {
+            let newTitle = document.getElementById('titleInput').value;
+            if (newTitle) {
+                document.getElementById('title').textContent = newTitle;
+            } else {
+                alert("请输入标题！");
+            }
+        }
+
+        // 调整分数
+        function adjustScore(change) {
+            let amount = parseInt(document.getElementById('scoreAmount').value);
+            let selectedStudents = students.filter(student => student.selected);
+            if (selectedStudents.length === 0) {
+                alert("请先选择学生！");
+                return;
+            }
+            selectedStudents.forEach(student => {
+                student.score += change * amount; // 积分累加
+            });
+            updateRanking();
+        }
+
+        // 切换学生选中状态
+        function toggleStudentSelection(index) {
+            students[index].selected = !students[index].selected;
+            updateStudentList();
+        }
+
+        // 更新积分排行
+        function updateRanking() {
+            students.sort((a, b) => b.score - a.score);
+            let rankingList = document.getElementById('rankingList');
+            rankingList.innerHTML = '';
+            students.forEach((student, index) => {
+                let li = document.createElement('li');
+                li.textContent = `${index + 1}. ${student.姓名} - ${student.score}分`;
+                if (index < 3) {
+                    li.textContent += ` (${['王者', '宗师', '大师'][index]})`;
+                }
+                rankingList.appendChild(li);
+            });
+        }
+
+        // 导出积分
+        function exportScores() {
+            if (students.length === 0) {
+                alert("没有学生数据可导出！");
+                return;
+            }
+            // 准备数据
+            let data = students.map(student => [student.姓名, student.score]);
+            // 创建工作表
+            let worksheet = XLSX.utils.aoa_to_sheet([['姓名', '积分'], ...data]);
+            // 创建工作簿
+            let workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, '积分表');
+            // 导出文件
+            XLSX.writeFile(workbook, '积分表.xlsx');
+        }
+
+        // 滑块数值显示
+        document.getElementById('speedControl').addEventListener('input', function () {
+            document.getElementById('speedValue').textContent = this.value;
+        });
+
+        document.getElementById('nameCount').addEventListener('input', function () {
+            document.getElementById('nameCountValue').textContent = this.value;
+        });
+
+        // 背景音乐控制
+        function toggleMusic() {
+            let music = document.getElementById('backgroundMusic');
+            if (music.paused) {
+                music.play();
+            } else {
+                music.pause();
+            }
+        }
+    </script>
+    <!-- 引入 XLSX 库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+</body>
+</html>
